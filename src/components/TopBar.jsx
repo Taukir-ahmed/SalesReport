@@ -3,9 +3,7 @@ import { monthKeyOf, monthLabel, monthShort, shiftMonth } from '../lib/columns'
 
 export default function TopBar({
   view,
-  onView,
-  pipelineCount,
-  projectRef,
+  ready = true,
   monthKey,
   months,
   onMonth,
@@ -31,33 +29,31 @@ export default function TopBar({
         <div className="brand">
           <div className="brand-mark">S</div>
           <div>
-            <h1>Sales Sheet</h1>
-            <span className="mode mode-supabase" title={`Supabase project: ${projectRef}`}>
-              ● Cloud · {projectRef}
-            </span>
+            <p className="breadcrumb-title">
+              Workspace <span className="breadcrumb">/</span>{' '}
+              {isSheet ? 'Sales sheet' : view === 'help' ? 'Sales Help' : 'Pipeline'}
+            </p>
           </div>
         </div>
 
-        <nav className="views">
-          <button className={isSheet ? 'active' : ''} onClick={() => onView('sheet')}>
-            Sales sheet
-          </button>
-          <button className={!isSheet ? 'active' : ''} onClick={() => onView('pipeline')}>
-            Pipeline
-            {pipelineCount > 0 && <span className="badge">{pipelineCount}</span>}
-          </button>
-        </nav>
-
-        {isSheet ? (
+        {isSheet && ready ? (
           <div className="month-nav">
-            <button className="icon-btn" title="Previous month" onClick={() => onMonth(shiftMonth(monthKey, -1))}>
+            <button
+              className="icon-btn"
+              title="Previous month"
+              onClick={() => onMonth(shiftMonth(monthKey, -1))}
+            >
               ‹
             </button>
             <div className="month-current">
               <strong>{monthLabel(monthKey)}</strong>
               {monthKey === thisMonth && <span className="live-dot" title="Current month" />}
             </div>
-            <button className="icon-btn" title="Next month" onClick={() => onMonth(shiftMonth(monthKey, 1))}>
+            <button
+              className="icon-btn"
+              title="Next month"
+              onClick={() => onMonth(shiftMonth(monthKey, 1))}
+            >
               ›
             </button>
             {monthKey !== thisMonth && (
@@ -69,17 +65,24 @@ export default function TopBar({
         ) : (
           <div className="month-nav">
             <div className="month-current wide">
-              <strong>Working pipeline</strong>
+              <strong>
+                {view === 'help' ? 'Better conversations start with listening' : 'Working pipeline'}
+              </strong>
             </div>
           </div>
         )}
 
         <div className="topbar-actions">
-          {isSheet && (
+          {isSheet && ready && (
             <>
               <div className="search">
                 <span>⌕</span>
-                <input value={search} placeholder="Search this sheet…" onChange={(e) => onSearch(e.target.value)} />
+                <input
+                  aria-label="Search this sheet"
+                  value={search}
+                  placeholder="Search this sheet…"
+                  onChange={(e) => onSearch(e.target.value)}
+                />
                 {search && (
                   <button className="clear" onClick={() => onSearch('')} title="Clear">
                     ×
@@ -134,12 +137,23 @@ export default function TopBar({
         </div>
       </div>
 
-      {isSheet && (
+      {isSheet && ready && (
         <div className="month-tabs">
           {tabs.map((m) => (
-            <button key={m} className={`tab ${m === monthKey ? 'active' : ''}`} onClick={() => onMonth(m)}>
+            <button
+              key={m}
+              className={`tab ${m === monthKey ? 'active' : ''}`}
+              onClick={() => onMonth(m)}
+            >
               {monthShort(m)}
-              {months.includes(m) ? '' : <span className="tab-empty" title="No entries yet"> ·</span>}
+              {months.includes(m) ? (
+                ''
+              ) : (
+                <span className="tab-empty" title="No entries yet">
+                  {' '}
+                  ·
+                </span>
+              )}
             </button>
           ))}
         </div>

@@ -7,7 +7,7 @@ export default function ConnectionScreen({ kind, message, onRetry }) {
         <h2>{setup ? 'Connect your Supabase project' : "Can't reach your sheet"}</h2>
         <p>
           {setup
-            ? 'This app keeps everything in Supabase — nothing is stored in the browser. Add your project keys and it will start up.'
+            ? 'Connect your existing Supabase project to open the sales sheet and pipeline. Sales Help is available from the navigation while you set this up.'
             : message}
         </p>
 
@@ -21,7 +21,8 @@ export default function ConnectionScreen({ kind, message, onRetry }) {
               Supabase → Project Settings → API.
             </li>
             <li>
-              Run <code>supabase/schema.sql</code> in the Supabase SQL editor.
+              Use the Supabase project that already holds your sales and pipeline tables. Database
+              setup scripts are not included in this repository.
             </li>
             <li>
               Stop and restart <code>npm run dev</code> — env files are only read at startup.
@@ -31,8 +32,8 @@ export default function ConnectionScreen({ kind, message, onRetry }) {
 
         {!setup && (
           <p className="conn-hint">
-            If this is the first run, make sure <code>supabase/schema.sql</code> has been run in the
-            SQL editor. Env changes need a restart of <code>npm run dev</code>.
+            Check that your existing sales and pipeline tables are available in this project. Env
+            changes need a restart of <code>npm run dev</code>.
           </p>
         )}
 

@@ -8,8 +8,10 @@ import ConnectionScreen from './components/ConnectionScreen'
 import ConvertModal from './components/ConvertModal'
 import PaymentModal from './components/PaymentModal'
 import Toast from './components/Toast'
+import WorkspaceNav from './components/WorkspaceNav'
+import SalesHelp from './components/SalesHelp'
 import * as db from './lib/db'
-import { isSupabaseConfigured, projectRef } from './lib/supabaseClient'
+import { isSupabaseConfigured } from './lib/supabaseClient'
 import {
   DATE_KEY,
   blankRow,
@@ -25,7 +27,7 @@ import { CONVERTS_TO, converts } from './lib/status'
 import { exportCsv, exportXlsx } from './lib/exporters'
 
 export default function App() {
-  const [view, setView] = useState('sheet')
+  const [view, setView] = useState(isSupabaseConfigured ? 'sheet' : 'help')
   const [columns, setColumns] = useState([])
   const [rows, setRows] = useState([])
   const [months, setMonths] = useState([])
@@ -211,7 +213,8 @@ export default function App() {
       const row = rows.find((r) => r.id === rowId)
       const patch = { [key]: value }
       /* typing straight into an amount replaces any instalment breakdown */
-      if (row && Array.isArray(row.data?.[partsKey(key)])) patch[partsKey(key)] = value === '' ? [] : [value]
+      if (row && Array.isArray(row.data?.[partsKey(key)]))
+        patch[partsKey(key)] = value === '' ? [] : [value]
       return updateCells(rowId, patch)
     },
     [rows, updateCells]
@@ -241,7 +244,9 @@ export default function App() {
       const total = parts.reduce((s, n) => s + (Number(n) || 0), 0)
       setPayment(null)
       await updateCells(row.id, { [column.key]: total, [partsKey(column.key)]: parts })
-      say(`Added ₹${Number(value).toLocaleString('en-IN')} — row now totals ₹${total.toLocaleString('en-IN')}`)
+      say(
+        `Added ₹${Number(value).toLocaleString('en-IN')} — row now totals ₹${total.toLocaleString('en-IN')}`
+      )
     },
     [payment, updateCells, say]
   )
@@ -423,7 +428,11 @@ export default function App() {
     const q = search.trim().toLowerCase()
     if (q) {
       out = out.filter((r) =>
-        visibleColumns.some((c) => String(r.data?.[c.key] ?? '').toLowerCase().includes(q))
+        visibleColumns.some((c) =>
+          String(r.data?.[c.key] ?? '')
+            .toLowerCase()
+            .includes(q)
+        )
       )
     }
     if (sort.key) {
@@ -482,92 +491,124 @@ export default function App() {
     }
   }
 
-  if (fatal) {
-    return (
-      <ConnectionScreen
-        kind={fatal.kind}
-        message={fatal.message}
-        onRetry={fatal.kind === 'error' ? () => setAttempt((n) => n + 1) : null}
-      />
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className="boot">
-        <div className="boot-card">
-          <div className="spinner" />
-          <p>Opening your sheet…</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="app">
-      <TopBar
+      <WorkspaceNav
         view={view}
         onView={setView}
-        pipelineCount={leads.filter((l) => !l.moved_at).length}
-        projectRef={projectRef}
-        monthKey={monthKey}
-        months={months}
-        onMonth={setMonthKey}
-        search={search}
-        onSearch={setSearch}
-        onExport={doExport}
-        onSettings={() => setSettingsOpen(true)}
-        grouped={grouped}
-        onGrouped={setGrouped}
+        count={leads.filter((l) => !l.moved_at).length}
+        connected={isSupabaseConfigured && !fatal && !loading}
       />
+      <div className="workspace">
+        <TopBar
+          ready={!fatal && !loading}
+          view={view}
+          monthKey={monthKey}
+          months={months}
+          onMonth={setMonthKey}
+          search={search}
+          onSearch={setSearch}
+          onExport={doExport}
+          onSettings={() => setSettingsOpen(true)}
+          grouped={grouped}
+          onGrouped={setGrouped}
+        />
 
-      <main className="main">
-        {view === 'sheet' ? (
-          <>
-            <StatCards stats={stats} />
-            <SheetGrid
-              columns={visibleColumns}
-              rows={viewRows}
-              monthKey={monthKey}
-              grouped={grouped}
-              hideEmptyDays={hideEmptyDays}
-              onHideEmptyDays={setHideEmptyDays}
-              sort={sort}
-              onSort={setSort}
-              onCell={updateCell}
-              onAddRow={addRow}
-              onDeleteRow={removeRow}
-              onResize={resizeColumn}
-              onAddPayment={(row, column) => setPayment({ row, column })}
-              focusCell={focusCell}
-              clearFocus={() => setFocusCell(null)}
-              busy={busy}
-              searching={!!search.trim()}
+        <main className="main">
+          <div hidden={view !== 'help'}>
+            <SalesHelp
+              leads={leads}
+              available={!fatal && !loading && !pipelineError}
+              onSaveNotes={async (id, remarks) => {
+                await db.updateLead(id, { remarks })
+                setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, remarks } : l)))
+              }}
             />
-          </>
-        ) : (
-          <PipelineBoard
-            leads={leads}
-            bin={bin}
-            binOpen={binOpen}
-            onBinOpen={setBinOpen}
-            onRestore={restoreLead}
-            onPurge={purgeLead}
-            courseOptions={courseOptions}
-            onUpdate={updateLead}
-            onAdd={addLead}
-            onDelete={removeLead}
-            onStatus={onLeadStatus}
-            showMoved={showMoved}
-            onShowMoved={(v) => {
-              setShowMoved(v)
-              refreshLeads(v)
-            }}
-            busy={busy}
-            error={pipelineError}
-          />
-        )}
-      </main>
+          </div>
+          {view === 'help' ? null : fatal ? (
+            <ConnectionScreen
+              kind={fatal.kind}
+              message={fatal.message}
+              onRetry={fatal.kind === 'error' ? () => setAttempt((n) => n + 1) : null}
+            />
+          ) : loading ? (
+            <div className="boot">
+              <div className="boot-card">
+                <div className="spinner" />
+                <p>Opening your workspace…</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="page-heading">
+                <div>
+                  <span className="eyebrow">
+                    {view === 'sheet'
+                      ? 'YOUR MONTH, AT A GLANCE'
+                      : 'MAKE THE NEXT CONVERSATION COUNT'}
+                  </span>
+                  <h1>{view === 'sheet' ? 'Sales overview' : 'Your pipeline'}</h1>
+                  <p>
+                    {view === 'sheet'
+                      ? 'Every conversation that became a win.'
+                      : 'Keep track of the people you’re following up with.'}
+                  </p>
+                </div>
+                {view === 'pipeline' && (
+                  <button className="primary-btn" disabled={busy} onClick={() => addLead()}>
+                    ＋ Add lead
+                  </button>
+                )}
+              </div>
+              {view === 'sheet' ? (
+                <>
+                  <StatCards stats={stats} />
+                  <SheetGrid
+                    columns={visibleColumns}
+                    rows={viewRows}
+                    monthKey={monthKey}
+                    grouped={grouped}
+                    hideEmptyDays={hideEmptyDays}
+                    onHideEmptyDays={setHideEmptyDays}
+                    sort={sort}
+                    onSort={setSort}
+                    onCell={updateCell}
+                    onAddRow={addRow}
+                    onDeleteRow={removeRow}
+                    onResize={resizeColumn}
+                    onAddPayment={(row, column) => setPayment({ row, column })}
+                    focusCell={focusCell}
+                    clearFocus={() => setFocusCell(null)}
+                    busy={busy}
+                    searching={!!search.trim()}
+                  />
+                </>
+              ) : (
+                <PipelineBoard
+                  leads={leads}
+                  bin={bin}
+                  binOpen={binOpen}
+                  onBinOpen={setBinOpen}
+                  onRestore={restoreLead}
+                  onPurge={purgeLead}
+                  courseOptions={courseOptions}
+                  onUpdate={updateLead}
+                  onAdd={addLead}
+                  onDelete={removeLead}
+                  onStatus={onLeadStatus}
+                  showMoved={showMoved}
+                  onShowMoved={(v) => {
+                    setShowMoved(v)
+                    refreshLeads(v)
+                  }}
+                  busy={busy}
+                  error={pipelineError}
+                />
+              )}
+            </>
+          )}
+        </main>
+      </div>
 
       {settingsOpen && (
         <ColumnSettings
