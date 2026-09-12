@@ -27,12 +27,13 @@ export default function CallFlow({ context }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [copyNotice, setCopyNotice] = useState('')
-  const [expanded, setExpanded] = useState(null)
+  const [expanded, setExpanded] = useState(0)
   const request = useRef(null)
   const stamp = JSON.stringify({ context, challenge, evidence })
   const fallback = useMemo(() => localCallFlow(context, challenge), [context, challenge])
   const live = generated?.stamp === stamp ? generated : null
   const steps = live?.steps || fallback
+  const active = steps[expanded] || steps[0]
 
   useEffect(() => {
     request.current?.abort()
@@ -40,7 +41,7 @@ export default function CallFlow({ context }) {
     setBusy(false)
     setGenerated(null)
     setError('')
-    setExpanded(null)
+    setExpanded(0)
     return () => {
       request.current?.abort()
       request.current = null
@@ -103,7 +104,7 @@ export default function CallFlow({ context }) {
       })
       if (request.current === controller && !controller.signal.aborted) {
         setGenerated({ stamp, steps, model: settings.model })
-        setExpanded(null)
+        setExpanded(0)
       }
     } catch (e) {
       if (request.current === controller)
@@ -130,13 +131,21 @@ export default function CallFlow({ context }) {
       setCopyNotice('Copy is unavailable. You can select and copy the lines manually.')
     }
   }
+  async function copyPoint() {
+    try {
+      await navigator.clipboard.writeText(formatCallGuide([active]))
+      setCopyNotice('Current talking point copied with its example and qualifications.')
+    } catch {
+      setCopyNotice('Copy is unavailable. Select the text and copy it manually.')
+    }
+  }
 
   return (
     <section className="call-flow" aria-label="10-line call flow">
       <div className="flow-toolbar">
         <div>
-          <span className="eyebrow">THE CONVERSATION, BEFORE THE PITCH</span>
-          <h2>Your 10 talking points</h2>
+          <span className="eyebrow">YOUR LIVE CALL COMPANION</span>
+          <h2>A conversation with direction.</h2>
         </div>
         <button
           className="ghost-btn"
@@ -254,47 +263,96 @@ export default function CallFlow({ context }) {
         </p>
       )}
       <p className="flow-hint">
-        Ask, listen, then share something useful. Each point includes an insight to say back. Open
-        it for an example, what it takes, and a follow-up.
+        Pick a talking point. Listen first, then open up a possibility that matters to them.
       </p>
-      <ol className="flow-list" aria-busy={busy}>
-        {steps.map((step, i) => (
-          <li key={`${live ? 'ai' : 'local'}-${i}`} className={expanded === i ? 'expanded' : ''}>
-            <button
-              className="flow-line"
-              aria-expanded={expanded === i}
-              aria-controls={`flow-detail-${i}`}
-              onClick={() => setExpanded(expanded === i ? null : i)}
-            >
-              <span className="flow-number">{String(i + 1).padStart(2, '0')}</span>
-              <span>
-                <small>{step.title}</small>
-                <span>{step.line}</span>
-              </span>
-              <span aria-hidden="true">{expanded === i ? '−' : '+'}</span>
+      <div className="call-stage">
+        <div className="call-route">
+          <div className="route-heading">
+            <strong>Your 10 talking points</strong>
+            <span>THE CALL MAP</span>
+          </div>
+          <ol className="flow-list" aria-busy={busy}>
+            {steps.map((step, i) => (
+              <li
+                key={`${live ? 'ai' : 'local'}-${i}`}
+                className={expanded === i ? 'expanded' : ''}
+              >
+                <button
+                  className="flow-line"
+                  aria-pressed={expanded === i}
+                  aria-controls="active-talking-point"
+                  onClick={() => setExpanded(i)}
+                >
+                  <span className="flow-number">{String(i + 1).padStart(2, '0')}</span>
+                  <span>
+                    <small>{step.title}</small>
+                    <span>{step.line}</span>
+                  </span>
+                  <span aria-hidden="true">{expanded === i ? '↗' : '›'}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <article
+          className="active-point"
+          id="active-talking-point"
+          aria-label={`Talking point ${expanded + 1}: ${active.title}`}
+        >
+          <div className="point-meta">
+            <span>IN FOCUS / {String(expanded + 1).padStart(2, '0')}</span>
+            <span>{active.principle}</span>
+          </div>
+          <div className="point-question">
+            <span className="eyebrow">OPEN THE CONVERSATION</span>
+            <h3>{active.line}</h3>
+          </div>
+          <div className="point-insight">
+            <span className="eyebrow">✧ SHARE A POSSIBILITY</span>
+            <p lang="en">{active.insight}</p>
+          </div>
+          <div className="point-example">
+            <span className="eyebrow">MAKE IT REAL · AN EXAMPLE</span>
+            <p lang="en">{active.example}</p>
+          </div>
+          <div className="point-reality">
+            <strong>What it takes</strong>
+            <p>{active.realityCheck}</p>
+          </div>
+          <div className="point-followup">
+            <span className="eyebrow">KEEP IT GOING</span>
+            <p lang="en">{active.followUp}</p>
+          </div>
+          <details className="point-coaching" key={`${live ? 'ai' : 'local'}-${expanded}`}>
+            <summary>Listening notes & when to use this</summary>
+            <p>{active.expand}</p>
+            <strong>Listen for</strong>
+            <p>{active.listenFor}</p>
+          </details>
+          <div className="point-actions">
+            <button className="text-btn" onClick={copyPoint}>
+              Copy this point ↗
             </button>
-            <div className="flow-insight">
-              <strong>Share this insight</strong>
-              <p lang="en">“{step.insight}”</p>
+            <div>
+              <button
+                className="ghost-btn"
+                aria-label="Previous talking point"
+                disabled={expanded === 0}
+                onClick={() => setExpanded((i) => i - 1)}
+              >
+                ←
+              </button>
+              <button
+                className="primary-btn"
+                disabled={expanded === steps.length - 1}
+                onClick={() => setExpanded((i) => i + 1)}
+              >
+                Next point →
+              </button>
             </div>
-            {expanded === i && (
-              <div className="flow-detail" id={`flow-detail-${i}`}>
-                <span className="language-badge">{step.principle}</span>
-                <strong>A concrete example · try saying</strong>
-                <p lang="en">“{step.example}”</p>
-                <strong>What it takes · keep the explanation accurate</strong>
-                <p>{step.realityCheck}</p>
-                <strong>How to explore their reply</strong>
-                <p>{step.expand}</p>
-                <strong>Then ask</strong>
-                <p lang="en">“{step.followUp}”</p>
-                <strong>Listen for</strong>
-                <p>{step.listenFor}</p>
-              </div>
-            )}
-          </li>
-        ))}
-      </ol>
+          </div>
+        </article>
+      </div>
       <p className="flow-copy-notice" role="status">
         {copyNotice}
       </p>

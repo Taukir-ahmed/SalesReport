@@ -22,6 +22,7 @@ export default function SalesHelp({ leads, onSaveNotes, available }) {
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [notice, setNotice] = useState('')
+  const [briefOpen, setBriefOpen] = useState(true)
   const result = useMemo(() => buildGuidance(context), [context])
   const angle = result.cards.find((c) => c.id === angleId) || result.cards[0]
   const connection = courseConnection(context, angle.id)
@@ -33,6 +34,7 @@ export default function SalesHelp({ leads, onSaveNotes, available }) {
     },
   })
   const chooseLead = (id) => {
+    setBriefOpen(true)
     setCallVersion((v) => v + 1)
     const lead = leads.find((l) => l.id === id)
     setLeadId(id)
@@ -80,105 +82,142 @@ export default function SalesHelp({ leads, onSaveNotes, available }) {
 
   return (
     <section className="sales-help" aria-label="Sales Help">
-      <div className="help-heading">
+      <div className="help-heading studio-hero">
         <div>
-          <span className="eyebrow">CONVERSATIONS, WITH CONTEXT</span>
+          <span className="eyebrow">
+            <span className="studio-dot" /> YOUR CONVERSATION STUDIO
+          </span>
           <h1>
-            A better conversation.
-            <br className="mobile-break" /> One line at a time.
+            Less pitching.
+            <br />
+            <em>More possibility.</em>
           </h1>
-          <p>Go beyond the course pitch. Find what is actually worth exploring.</p>
+          <p>Find the next good question. Share something worth hearing.</p>
         </div>
-        <button className="ghost-btn" onClick={reset} disabled={saving}>
-          ＋ New call
-        </button>
+        <div className="hero-side">
+          <span className="hero-orbit" aria-hidden="true">
+            ✳
+          </span>
+          <span className="hero-caption">
+            A little context.
+            <br />A better conversation.
+          </span>
+          <button className="ghost-btn" onClick={reset} disabled={saving}>
+            ＋ New call
+          </button>
+        </div>
+      </div>
+      <div className="studio-workflow" aria-label="How to use Sales Help">
+        <span>
+          <b>01</b> Understand the person
+        </span>
+        <span>
+          <b>02</b> Explore possibilities
+        </span>
+        <span>
+          <b>03</b> Find the next step
+        </span>
       </div>
       <div className="help-layout">
-        <aside className="client-panel">
-          <div className="panel-heading">
-            <span className="section-number">01</span>
-            <h2>Who’s on the call?</h2>
-          </div>
-          {available && (
+        <details
+          className="client-panel"
+          open={briefOpen}
+          onToggle={(e) => setBriefOpen(e.currentTarget.open)}
+        >
+          <summary className="brief-summary">
+            <span className="brief-avatar" aria-hidden="true">
+              {context.name ? context.name.charAt(0).toUpperCase() : '◎'}
+            </span>
+            <span>
+              <strong>{context.name || 'Your client brief'}</strong>
+              <small>{context.role || 'Start with who they are, not what you sell.'}</small>
+            </span>
+            <span className="brief-toggle">
+              {briefOpen ? 'Collapse details −' : 'Edit details +'}
+            </span>
+          </summary>
+          <div className="brief-fields">
+            {available && (
+              <label>
+                Pipeline lead
+                <select
+                  disabled={saving}
+                  value={leadId}
+                  onChange={(e) => {
+                    if (
+                      e.target.value !== leadId &&
+                      (notes ||
+                        context.role ||
+                        context.purpose ||
+                        context.interest ||
+                        context.situation ||
+                        context.knowledge) &&
+                      !window.confirm('Switch clients? Unsaved context and notes will be cleared.')
+                    )
+                      return
+                    chooseLead(e.target.value)
+                  }}
+                >
+                  <option value="">New conversation</option>
+                  {leads
+                    .filter((l) => !l.moved_at)
+                    .map((l) => (
+                      <option key={l.id} value={l.id}>
+                        {l.name || 'Unnamed lead'}
+                        {l.phone ? ` · ${l.phone}` : ''}
+                      </option>
+                    ))}
+                </select>
+              </label>
+            )}
             <label>
-              Pipeline lead
-              <select
-                disabled={saving}
-                value={leadId}
-                onChange={(e) => {
-                  if (
-                    e.target.value !== leadId &&
-                    (notes ||
-                      context.role ||
-                      context.purpose ||
-                      context.interest ||
-                      context.situation ||
-                      context.knowledge) &&
-                    !window.confirm('Switch clients? Unsaved context and notes will be cleared.')
-                  )
-                    return
-                  chooseLead(e.target.value)
-                }}
-              >
-                <option value="">New conversation</option>
-                {leads
-                  .filter((l) => !l.moved_at)
-                  .map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.name || 'Unnamed lead'}
-                      {l.phone ? ` · ${l.phone}` : ''}
-                    </option>
-                  ))}
+              Client name <span className="optional">optional</span>
+              <input placeholder="e.g. Rahul" {...field('name')} />
+            </label>
+            <label>
+              What do they do?
+              <input placeholder="e.g. Accountant, teacher, shop owner" {...field('role')} />
+            </label>
+            <label>
+              Their situation, in their own words
+              <textarea
+                rows={2}
+                placeholder="e.g. 3 years in frontend, feels stuck; wants backend/AI work. Says: ‘I’m worried about layoffs, but don’t know Python.’"
+                {...field('situation')}
+              />
+            </label>
+            <label>
+              What do they already know?
+              <input placeholder="e.g. Python, ChatGPT, built a RAG demo" {...field('knowledge')} />
+            </label>
+            <label>
+              Why did they attend the workshop?
+              <textarea
+                rows={2}
+                placeholder="General learning is enough. Use their words…"
+                {...field('purpose')}
+              />
+            </label>
+            <label>
+              Hobbies or an idea they’ve put off
+              <input placeholder="e.g. Cooking, photography, writing" {...field('interest')} />
+            </label>
+            <label>
+              What matters to them?
+              <select {...field('goal')}>
+                {goals.map((g) => (
+                  <option key={g}>{g}</option>
+                ))}
               </select>
             </label>
-          )}
-          <label>
-            Client name <span className="optional">optional</span>
-            <input placeholder="e.g. Rahul" {...field('name')} />
-          </label>
-          <label>
-            What do they do?
-            <input placeholder="e.g. Accountant, teacher, shop owner" {...field('role')} />
-          </label>
-          <label>
-            Their situation, in their own words
-            <textarea
-              rows={4}
-              placeholder="e.g. 3 years in frontend, feels stuck; wants backend/AI work. Says: ‘I’m worried about layoffs, but don’t know Python.’"
-              {...field('situation')}
-            />
-          </label>
-          <label>
-            What do they already know?
-            <input placeholder="e.g. Python, ChatGPT, built a RAG demo" {...field('knowledge')} />
-          </label>
-          <label>
-            Why did they attend the workshop?
-            <textarea
-              rows={3}
-              placeholder="General learning is enough. Use their words…"
-              {...field('purpose')}
-            />
-          </label>
-          <label>
-            Hobbies or an idea they’ve put off
-            <input placeholder="e.g. Cooking, photography, writing" {...field('interest')} />
-          </label>
-          <label>
-            What matters to them?
-            <select {...field('goal')}>
-              {goals.map((g) => (
-                <option key={g}>{g}</option>
-              ))}
-            </select>
-          </label>
+          </div>
           <div className="context-note">
             <span>✧</span>
             <p>
               Angles update as you type. Ask first; their job alone doesn’t tell you what they want.
             </p>
           </div>
-        </aside>
+        </details>
 
         <div className="conversation-panel">
           <div className="conversation-top">
@@ -188,6 +227,10 @@ export default function SalesHelp({ leads, onSaveNotes, available }) {
             <span className="language-badge">English</span>
           </div>
           <CallFlow key={callVersion} context={context} />
+          <div className="support-heading">
+            <span className="eyebrow">WHEN YOU NEED ANOTHER WAY IN</span>
+            <h2>Keep the conversation moving.</h2>
+          </div>
           <div
             className="help-tabs"
             role="tablist"

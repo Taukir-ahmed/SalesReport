@@ -13,7 +13,7 @@ export default function WorkspaceNav({ view, onView, count, connected }) {
           s<span>↗</span>
         </span>
         <span>
-          Salesroom<small>YOUR SALES WORKSPACE</small>
+          Salesroom<small>A LITTLE MORE HUMAN.</small>
         </span>
       </a>
       <span className="nav-caption">WORKSPACE</span>
@@ -37,6 +37,19 @@ export default function WorkspaceNav({ view, onView, count, connected }) {
           </button>
         ))}
       </nav>
+      <div className="nav-studio-note">
+        <span aria-hidden="true">✳</span>
+        <strong>
+          Good conversations
+          <br />
+          open doors.
+        </strong>
+        <p>
+          Your space to listen,
+          <br />
+          explore, and follow through.
+        </p>
+      </div>
       <div className="nav-bottom">
         <span className="workspace-avatar">SR</span>
         <div>

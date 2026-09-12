@@ -14,8 +14,10 @@ Open **Sales Help** from the sidebar. Enter the client's work, actual situation,
 existing skills, reason for attending, and latest difficult reply. The main result
 is **10 English one-liners** to guide the conversation before a course pitch.
 Each line is paired with a practical insight you can say back to the client.
-Open it for a spoken example, the setup and limitations to explain, a follow-up
-question, and what to listen for. **Copy call guide** includes those insights and
+Select a point in the call map to see its insight, spoken example, setup and
+limitations, and follow-up in a focused panel. Use **Next point** to advance;
+listening notes expand underneath. The client brief collapses during a call.
+**Copy call guide** includes those insights and
 their qualifications. The latest reply also updates the local starter guidance;
 Gemini creates a fuller flow around the client's actual skills and situation.
 
@@ -24,6 +26,15 @@ reusable briefs, themes, and validation. These distinguish documented features
 from experiments and do not promise automatic style learning or unattended work.
 Feature references: [Copilot report creation](https://learn.microsoft.com/en-us/power-bi/create-reports/copilot-create-reports)
 and [Power BI themes](https://learn.microsoft.com/en-us/power-bi/create-reports/desktop-report-themes).
+
+### Workspace design
+
+The workspace uses warm neutral surfaces, forest-green accents, and light navigation.
+The sales sheet pairs a prominent collection total with compact supporting metrics;
+month selection, search, grouping, exports, and column settings sit beside the ledger.
+The table retains its editing, payment, and keyboard controls, with horizontal
+scrolling on narrow screens. Sales Help switches from a call map and detail panel
+on desktop to stacked panels on phones.
 
 ### Gemini connection
 

@@ -4,6 +4,7 @@ import { monthKeyOf, monthLabel, monthShort, shiftMonth } from '../lib/columns'
 export default function TopBar({
   view,
   ready = true,
+  toolsOnly = false,
   monthKey,
   months,
   onMonth,
@@ -24,7 +25,7 @@ export default function TopBar({
   }, [months, monthKey, thisMonth])
 
   return (
-    <header className="topbar">
+    <header className={toolsOnly ? 'topbar sheet-tools' : 'topbar'}>
       <div className="topbar-row">
         <div className="brand">
           <div className="brand-mark">S</div>
@@ -66,7 +67,11 @@ export default function TopBar({
           <div className="month-nav">
             <div className="month-current wide">
               <strong>
-                {view === 'help' ? 'Better conversations start with listening' : 'Working pipeline'}
+                {view === 'help'
+                  ? 'Your conversation studio'
+                  : isSheet
+                    ? 'Your monthly sales workspace'
+                    : 'Working pipeline'}
               </strong>
             </div>
           </div>

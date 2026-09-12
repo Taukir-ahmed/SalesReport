@@ -501,7 +501,7 @@ export default function App() {
       />
       <div className="workspace">
         <TopBar
-          ready={!fatal && !loading}
+          ready={view !== 'sheet' && !fatal && !loading}
           view={view}
           monthKey={monthKey}
           months={months}
@@ -547,13 +547,20 @@ export default function App() {
                       ? 'YOUR MONTH, AT A GLANCE'
                       : 'MAKE THE NEXT CONVERSATION COUNT'}
                   </span>
-                  <h1>{view === 'sheet' ? 'Sales overview' : 'Your pipeline'}</h1>
+                  <h1>{view === 'sheet' ? 'Make every win count.' : 'Good things in progress.'}</h1>
                   <p>
                     {view === 'sheet'
                       ? 'Every conversation that became a win.'
                       : 'Keep track of the people you’re following up with.'}
                   </p>
                 </div>
+                {view === 'sheet' && (
+                  <span className="page-stamp">
+                    Small steps.
+                    <br />
+                    Real progress.
+                  </span>
+                )}
                 {view === 'pipeline' && (
                   <button className="primary-btn" disabled={busy} onClick={() => addLead()}>
                     ＋ Add lead
@@ -563,6 +570,29 @@ export default function App() {
               {view === 'sheet' ? (
                 <>
                   <StatCards stats={stats} />
+                  <div className="sales-ledger">
+                    <div>
+                      <h2>Your sales ledger</h2>
+                      <p>
+                        Click a cell to edit. Keep the details, payments, and next steps together.
+                      </p>
+                    </div>
+                    <span>{grouped ? 'Organised by day' : 'All entries'}</span>
+                  </div>
+                  <TopBar
+                    toolsOnly
+                    ready
+                    view="sheet"
+                    monthKey={monthKey}
+                    months={months}
+                    onMonth={setMonthKey}
+                    search={search}
+                    onSearch={setSearch}
+                    onExport={doExport}
+                    onSettings={() => setSettingsOpen(true)}
+                    grouped={grouped}
+                    onGrouped={setGrouped}
+                  />
                   <SheetGrid
                     columns={visibleColumns}
                     rows={viewRows}
