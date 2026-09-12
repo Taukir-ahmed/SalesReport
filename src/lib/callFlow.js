@@ -1,3 +1,5 @@
+import { addCallInsights } from './callInsights.js'
+
 export const researchSources = [
   {
     title: 'SPIN Selling · Neil Rackham / Huthwaite',
@@ -25,7 +27,7 @@ const item = (title, line, expand, followUp, listenFor, principle) => ({
   principle,
 })
 
-export function localCallFlow(context) {
+export function localCallFlow(context, challenge = '') {
   const technical =
     /rag|mcp|llm|retriev|vector|ai project/i.test(context.knowledge || '') &&
     !/no |not |never|beginner|nahi|nhi/i.test(context.knowledge || '')
@@ -35,7 +37,7 @@ export function localCallFlow(context) {
   const opening = purpose
     ? `You mentioned “${purpose}” — what about that caught your interest?`
     : 'Are you more curious about understanding AI, or trying to build something with it?'
-  return [
+  const steps = [
     item(
       'Meet them at their level',
       skill
@@ -133,4 +135,5 @@ export function localCallFlow(context) {
       'Voluntary commitment · Cialdini'
     ),
   ]
+  return addCallInsights(steps, context, challenge)
 }

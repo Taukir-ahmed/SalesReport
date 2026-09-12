@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { localCallFlow, researchSources } from '../lib/callFlow'
+import { formatCallGuide } from '../lib/callInsights'
 import {
   DEFAULT_MODEL,
   SETTINGS_KEY,
@@ -29,7 +30,7 @@ export default function CallFlow({ context }) {
   const [expanded, setExpanded] = useState(null)
   const request = useRef(null)
   const stamp = JSON.stringify({ context, challenge, evidence })
-  const fallback = useMemo(() => localCallFlow(context), [context])
+  const fallback = useMemo(() => localCallFlow(context, challenge), [context, challenge])
   const live = generated?.stamp === stamp ? generated : null
   const steps = live?.steps || fallback
 
@@ -123,8 +124,8 @@ export default function CallFlow({ context }) {
   }
   async function copyAll() {
     try {
-      await navigator.clipboard.writeText(steps.map((s, i) => `${i + 1}. ${s.line}`).join('\n'))
-      setCopyNotice('10 lines copied.')
+      await navigator.clipboard.writeText(formatCallGuide(steps))
+      setCopyNotice('10 talking points with insights and examples copied.')
     } catch {
       setCopyNotice('Copy is unavailable. You can select and copy the lines manually.')
     }
@@ -197,12 +198,12 @@ export default function CallFlow({ context }) {
         </form>
       )}
       <label className="challenge-label">
-        What makes this call difficult?
+        What did they say, or what makes this call difficult?
         <textarea
           rows={2}
           value={challenge}
           onChange={(e) => setChallenge(e.target.value)}
-          placeholder="e.g. Senior engineer: ‘I can learn RAG myself. Why take a course?’"
+          placeholder="e.g. ‘I use Copilot for DAX formulas. What else could I do with AI?’"
         />
       </label>
       <details className="course-evidence">
@@ -236,7 +237,7 @@ export default function CallFlow({ context }) {
           </button>
         )}
         <button className="text-btn" onClick={copyAll}>
-          Copy 10 lines
+          Copy call guide
         </button>
         <span className="flow-source">
           {live ? `Gemini · ${live.model}` : 'Instant local flow'}
@@ -253,7 +254,8 @@ export default function CallFlow({ context }) {
         </p>
       )}
       <p className="flow-hint">
-        Read down the list. Open any line for an example, a follow-up, and what to listen for.
+        Ask, listen, then share something useful. Each point includes an insight to say back. Open
+        it for an example, what it takes, and a follow-up.
       </p>
       <ol className="flow-list" aria-busy={busy}>
         {steps.map((step, i) => (
@@ -271,9 +273,18 @@ export default function CallFlow({ context }) {
               </span>
               <span aria-hidden="true">{expanded === i ? '−' : '+'}</span>
             </button>
+            <div className="flow-insight">
+              <strong>Share this insight</strong>
+              <p lang="en">“{step.insight}”</p>
+            </div>
             {expanded === i && (
               <div className="flow-detail" id={`flow-detail-${i}`}>
                 <span className="language-badge">{step.principle}</span>
+                <strong>A concrete example · try saying</strong>
+                <p lang="en">“{step.example}”</p>
+                <strong>What it takes · keep the explanation accurate</strong>
+                <p>{step.realityCheck}</p>
+                <strong>How to explore their reply</strong>
                 <p>{step.expand}</p>
                 <strong>Then ask</strong>
                 <p lang="en">“{step.followUp}”</p>

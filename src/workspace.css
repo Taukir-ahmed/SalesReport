@@ -1077,6 +1077,30 @@ textarea::placeholder {
   padding: 5px 24px 20px 64px;
   background: #f0f4ff;
 }
+.flow-insight {
+  margin: 0 24px 18px 64px;
+  padding: 12px 16px;
+  border-left: 3px solid #5d8bca;
+  border-radius: 0 8px 8px 0;
+  background: #eef5fc;
+  overflow-wrap: anywhere;
+}
+.flow-insight strong {
+  color: #345d88;
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.flow-insight p {
+  margin: 5px 0 0;
+  color: #294764;
+  font-size: 15px;
+  line-height: 1.65;
+}
+.flow-detail > strong {
+  display: block;
+  margin-top: 15px;
+}
 .flow-detail p {
   font-size: 15px;
   line-height: 1.75;
@@ -1128,6 +1152,11 @@ textarea::placeholder {
   .flow-detail {
     padding-left: 45px;
     padding-right: 16px;
+  }
+  .flow-insight {
+    margin-left: 45px;
+    margin-right: 16px;
+    padding: 10px 12px;
   }
   .flow-source {
     margin-left: 0;

@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { localCallFlow } from '../src/lib/callFlow.js'
+import { formatCallGuide } from '../src/lib/callInsights.js'
 import {
   buildPrompt,
   generateFlow,
@@ -42,6 +43,27 @@ test('keys can be saved, replaced, and read without modifying unrelated storage'
   assert.equal(readSettings({ getItem: () => '{bad' }).key, '')
   assert.throws(() => saveSettings(storage, { key: 'abc', model: 'https://other.example' }))
 })
+test('every starter cue includes an insight, spoken example, and specific qualification', () => {
+  for (const ctx of [{}, context, { knowledge: 'Copilot for DAX' }]) {
+    const flow = localCallFlow(ctx)
+    for (const cue of flow) {
+      for (const field of ['insight', 'example', 'realityCheck']) assert.ok(cue[field]?.trim())
+    }
+    assert.equal(new Set(flow.map((s) => s.insight)).size, 10)
+  }
+  assert.match(steps[2].insight, /passage/)
+})
+test('latest DAX reply reveals report possibilities without assuming a profession or automatic training', () => {
+  const flow = localCallFlow({}, 'I use Copilot for DAX formulas')
+  assert.match(flow[0].insight, /draft report pages/)
+  assert.match(flow[2].insight, /themes/)
+  assert.match(flow[2].realityCheck, /does not support styling/)
+  assert.match(flow[2].realityCheck, /not automatic training/)
+  assert.doesNotMatch(localCallFlow({ role: 'Data analyst' })[0].insight, /Power BI/)
+  const copied = formatCallGuide(flow)
+  assert.ok(copied.includes(flow[2].example))
+  assert.ok(copied.includes(flow[2].realityCheck))
+})
 test('prompt excludes client identity and notes while covering hard scenarios', () => {
   const prompt = buildPrompt(context, 'I can self-study', 'Trainer profile to verify')
   assert.doesNotMatch(prompt, /PRIVATE_NAME|PRIVATE_NOTES/)
@@ -50,6 +72,8 @@ test('prompt excludes client identity and notes while covering hard scenarios', 
   assert.match(prompt, /Wants deeper architecture discussions/)
   assert.match(prompt, /Never infer a personality/)
   assert.match(prompt, /All output fields must be in natural English only/)
+  assert.match(prompt, /Every cue must give the adviser something useful to EXPLAIN/)
+  assert.match(prompt, /saved instructions, reusable templates, retrieval, model fine-tuning/)
   assert.match(prompt, /never create|Never tell/)
 })
 test('validates complete structured output and refuses partial or malformed flows', () => {
@@ -63,9 +87,25 @@ test('validates complete structured output and refuses partial or malformed flow
   const bad = structuredClone(response)
   bad.candidates[0].content.parts[0].text = JSON.stringify({ steps: steps.slice(0, 9) })
   assert.throws(() => parseFlow(bad), /10 complete/)
+  const lecture = structuredClone(steps).map((step) => ({
+    ...step,
+    line: 'Here is another explanation.',
+  }))
+  bad.candidates[0].content.parts[0].text = JSON.stringify({ steps: lecture })
+  assert.throws(() => parseFlow(bad), /opening questions/)
+  for (const field of ['insight', 'example', 'realityCheck']) {
+    const missing = structuredClone(steps)
+    delete missing[3][field]
+    bad.candidates[0].content.parts[0].text = JSON.stringify({ steps: missing })
+    assert.throws(() => parseFlow(bad), /10 complete/)
+  }
   const unsupported = structuredClone(response)
   const invalidSteps = structuredClone(steps)
   invalidSteps[9].line = 'Our course projects and mentorship are the right fit for you.'
+  unsupported.candidates[0].content.parts[0].text = JSON.stringify({ steps: invalidSteps })
+  assert.throws(() => parseFlow(unsupported), /unsupported course claim/)
+  invalidSteps[9].line = steps[9].line
+  invalidSteps[9].insight = 'Our guaranteed placement will help you get a job.'
   unsupported.candidates[0].content.parts[0].text = JSON.stringify({ steps: invalidSteps })
   assert.throws(() => parseFlow(unsupported), /unsupported course claim/)
 })
@@ -79,8 +119,16 @@ test('request authenticates only to Google and returns validated cues', async ()
       assert.ok(!url.includes('test-key'))
       assert.equal(init.headers['x-goog-api-key'], 'test-key')
       const body = JSON.parse(init.body)
-      assert.match(body.systemInstruction.parts[0].text, /Use English only in every output field/)
+      assert.match(
+        body.systemInstruction.parts.map((p) => p.text).join(' '),
+        /Use English only in every output field/
+      )
       assert.equal(body.generationConfig.responseSchema.properties.steps.maxItems, 10)
+      for (const field of ['insight', 'example', 'realityCheck']) {
+        assert.ok(
+          body.generationConfig.responseSchema.properties.steps.items.required.includes(field)
+        )
+      }
       return { ok: true, json: async () => response }
     },
   })

@@ -13,7 +13,17 @@ Built with React + Vite, backed by Supabase.
 Open **Sales Help** from the sidebar. Enter the client's work, actual situation,
 existing skills, reason for attending, and latest difficult reply. The main result
 is **10 English one-liners** to guide the conversation before a course pitch.
-Open any line for an example, follow-up question, and what to listen for.
+Each line is paired with a practical insight you can say back to the client.
+Open it for a spoken example, the setup and limitations to explain, a follow-up
+question, and what to listen for. **Copy call guide** includes those insights and
+their qualifications. The latest reply also updates the local starter guidance;
+Gemini creates a fuller flow around the client's actual skills and situation.
+
+For example, a client using Copilot for DAX gets ideas about report drafts,
+reusable briefs, themes, and validation. These distinguish documented features
+from experiments and do not promise automatic style learning or unattended work.
+Feature references: [Copilot report creation](https://learn.microsoft.com/en-us/power-bi/create-reports/copilot-create-reports)
+and [Power BI themes](https://learn.microsoft.com/en-us/power-bi/create-reports/desktop-report-themes).
 
 ### Gemini connection
 
