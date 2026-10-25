@@ -313,7 +313,7 @@ input, select, textarea {
   background: var(--brand-gradient);
   position: relative;
   z-index: 30;
-  padding: 24px 36px 64px;
+  padding: 24px 36px 74px;
   box-shadow: 0 4px 20px rgba(94, 114, 228, 0.15);
 }
 
@@ -345,8 +345,66 @@ input, select, textarea {
   gap: 8px;
 }
 
+.breadcrumb-title strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
 .breadcrumb {
   color: rgba(255, 255, 255, 0.45);
+}
+
+/* Hero title row inside gradient banner */
+.topbar-hero-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 24px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.hero-heading-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  color: rgba(255, 255, 255, 0.78);
+  text-transform: uppercase;
+}
+
+.hero-title {
+  font-size: 28px;
+  letter-spacing: -0.7px;
+  font-weight: 700;
+  margin: 6px 0 4px;
+  color: #ffffff;
+}
+
+.hero-subtitle {
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0;
+  font-size: 14.5px;
+}
+
+.hero-add-lead {
+  background: #ffffff !important;
+  color: var(--brand) !important;
+  font-weight: 700;
+  font-size: 13.5px;
+  padding: 10px 22px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.hero-add-lead:hover {
+  background: #f6f9fc !important;
+  transform: translateY(-1px);
 }
 
 /* Month navigation inside hero */
@@ -354,8 +412,6 @@ input, select, textarea {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-left: auto;
-  margin-right: 12px;
 }
 
 .month-current {
@@ -544,9 +600,9 @@ input, select, textarea {
 .month-tabs {
   display: flex;
   gap: 8px;
-  margin-top: 20px;
+  margin-top: 18px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 2px;
 }
 
 .tab {
@@ -562,7 +618,7 @@ input, select, textarea {
 
 .tab:hover {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .tab.active {
@@ -590,7 +646,7 @@ input, select, textarea {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
-  margin-top: -46px;
+  margin-top: -48px;
   margin-bottom: 28px;
   position: relative;
   z-index: 35;
@@ -690,45 +746,6 @@ input, select, textarea {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-/* ----------------------------- page headings ------------------------------ */
-.page-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  margin: 28px 0 20px;
-}
-
-.eyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.6px;
-  color: var(--brand);
-  text-transform: uppercase;
-}
-
-.page-heading h1 {
-  font-size: 28px;
-  letter-spacing: -0.7px;
-  font-weight: 700;
-  margin: 6px 0 4px;
-  color: var(--ink);
-}
-
-.page-heading p {
-  color: var(--ink-soft);
-  margin: 0;
-  font-size: 14.5px;
-}
-
-.page-stamp {
-  font-size: 12px;
-  color: var(--ink-faint);
-  text-align: right;
-  line-height: 1.4;
-  font-weight: 600;
 }
 
 /* ----------------------------- sales ledger ------------------------------- */
@@ -872,9 +889,71 @@ input, select, textarea {
 }
 
 .sheet td {
-  padding: 12px 16px;
+  padding: 10px 14px;
   color: var(--ink-soft);
   vertical-align: middle;
+}
+
+.cell-td {
+  cursor: pointer;
+  position: relative;
+  transition: background 0.12s, box-shadow 0.12s;
+  user-select: none;
+}
+
+.cell-td:hover {
+  background: #f0f4ff !important;
+}
+
+.cell-td.editing {
+  padding: 0 !important;
+  background: #ffffff !important;
+  box-shadow: inset 0 0 0 2px var(--brand);
+  cursor: text;
+}
+
+.cell-placeholder {
+  color: #94a3b8;
+  font-size: 12.5px;
+  font-style: italic;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cell-placeholder.pill-placeholder {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  background: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--radius-pill);
+  color: #64748b;
+}
+
+.cell-td:hover .cell-placeholder {
+  color: var(--brand);
+}
+
+.cell-input {
+  width: 100%;
+  height: 100%;
+  min-height: 40px;
+  border: 2px solid var(--brand) !important;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 13.5px;
+  outline: none;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(94, 114, 228, 0.25);
+  box-sizing: border-box;
+  color: var(--ink);
+}
+
+select.cell-input {
+  cursor: pointer;
 }
 
 .sheet td.money {
@@ -927,25 +1006,76 @@ input, select, textarea {
   font-weight: 700;
   color: var(--ink);
   vertical-align: top;
-  padding-top: 14px;
+  padding: 12px 14px;
 }
 
-.date-pill {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.day-badge {
+.dc-day {
+  display: block;
   font-size: 13px;
   font-weight: 700;
   color: var(--ink);
 }
 
-.day-sub {
+.dc-wd {
+  display: block;
   font-size: 11px;
   color: var(--ink-faint);
   font-weight: 500;
+}
+
+.dc-count {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 10.5px;
+  background: var(--brand-tint);
+  color: var(--brand);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* Empty days row */
+.day-gap {
+  background: #fffdfd;
+}
+
+.day-gap:hover {
+  background: #fff8f8 !important;
+}
+
+.day-gap td {
+  padding: 8px 14px !important;
+}
+
+.day-gap-nosale td.date-cell {
+  background: #fff8f8;
+  color: #e53e3e;
+  border-right-color: #fbd5d5;
+}
+
+.day-gap-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.day-gap-note {
+  color: #94a3b8;
+  font-size: 12.5px;
+}
+
+.day-gap .text-btn {
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 600;
+  border: 0;
+  background: transparent;
+  padding: 2px 6px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.day-gap .text-btn:hover {
+  color: var(--brand-deep);
 }
 
 /* Status Pills */
@@ -1005,20 +1135,20 @@ input, select, textarea {
   padding: 2px 6px;
 }
 
-/* Cell editor */
-.cell-input {
-  width: 100%;
-  border: 1.5px solid var(--brand);
-  border-radius: 6px;
-  padding: 6px 8px;
-  font-size: 13.5px;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(94, 114, 228, 0.2);
-  box-sizing: border-box;
+.pay-add {
+  margin-left: 8px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--brand);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 700;
 }
 
-.cell-input.right {
-  text-align: right;
+.pay-add:hover {
+  background: var(--brand-tint);
+  border-color: var(--brand);
 }
 
 /* Ghost / Add Row */

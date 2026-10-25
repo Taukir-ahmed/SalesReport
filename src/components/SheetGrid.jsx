@@ -33,6 +33,11 @@ function CellEditor({ col, value, onCommit, onCancel, onNav }) {
     if (!el) return
     el.focus()
     if (el.select && t.input !== 'date' && t.input !== 'select') el.select()
+    if (t.input === 'select') {
+      try {
+        if (typeof el.showPicker === 'function') el.showPicker()
+      } catch (err) {}
+    }
   }, [t.input])
 
   const commit = () => onCommit(t.parse(v))
@@ -65,7 +70,7 @@ function CellEditor({ col, value, onCommit, onCancel, onNav }) {
         onKeyDown={onKeyDown}
         onBlur={commit}
       >
-        <option value="">—</option>
+        <option value="">— Select {col.label} —</option>
         {(col.options || []).map((o) => (
           <option key={o} value={o}>
             {o}
@@ -86,7 +91,7 @@ function CellEditor({ col, value, onCommit, onCancel, onNav }) {
       onChange={(e) => setV(e.target.value)}
       onKeyDown={onKeyDown}
       onBlur={commit}
-      placeholder={col.type === 'currency' ? '0' : ''}
+      placeholder={col.type === 'currency' ? '₹ 0' : `Enter ${col.label.toLowerCase()}...`}
     />
   )
 }
@@ -234,14 +239,22 @@ export default function SheetGrid({
 
     const parts = row.data?.[partsKey(c.key)]
     const split = c.type === 'currency' && Array.isArray(parts) && parts.length > 1
+    const isEmpty = raw === '' || raw == null
+
+    const handleStartEdit = () => {
+      if (!isEditing) {
+        setEditing({ rowId: row.id, key: c.key })
+      }
+    }
 
     return (
       <td
         key={c.key}
-        className={`${t.align === 'right' ? 'right' : ''} ${isEditing ? 'editing' : ''} ${
+        className={`cell-td ${t.align === 'right' ? 'right' : ''} ${isEditing ? 'editing' : ''} ${
           c.type === 'currency' ? 'money' : ''
-        }`}
-        onClick={() => !isEditing && setEditing({ rowId: row.id, key: c.key })}
+        } ${isEmpty ? 'empty-cell' : ''}`}
+        onMouseDown={handleStartEdit}
+        onClick={handleStartEdit}
       >
         {isEditing ? (
           <CellEditor
@@ -259,15 +272,21 @@ export default function SheetGrid({
         ) : split ? (
           <span className="split" title={`Total ₹${inr.format(Number(raw) || 0)}`}>
             {parts.map((p, i) => (
-              <span key={i}>
+              <span key={i} className="split-part">
                 {i > 0 && <em>+</em>}₹{inr.format(Number(p) || 0)}
               </span>
             ))}
           </span>
-        ) : (
-          <span className={raw === '' || raw == null ? 'muted' : ''}>
-            {raw === '' || raw == null ? '' : t.display(raw)}
+        ) : isEmpty ? (
+          <span className={`cell-placeholder ${c.type === 'status' ? 'pill-placeholder' : ''}`}>
+            {c.type === 'select' || c.type === 'status'
+              ? `Select ${c.label.toLowerCase()} ▾`
+              : c.type === 'currency'
+              ? '₹ 0'
+              : `Add ${c.label.toLowerCase()}...`}
           </span>
+        ) : (
+          <span className="cell-value">{t.display(raw)}</span>
         )}
 
         {c.type === 'currency' && !isEditing && (raw || split) && (
@@ -404,7 +423,7 @@ export default function SheetGrid({
               )}
               {bodyCols.map((c) => (
                 <th key={c.key} className={typeOf(c).align === 'right' ? 'right' : ''}>
-                  <button className="th-btn" onClick={() => toggleSort(c.key)} title="Sort">
+                  <button className="th-btn" onClick={() => toggleSort(c.key)}>
                     <span className="th-icon">{TYPE_ICON[c.type] ?? '·'}</span>
                     <span className="th-label">{c.label}</span>
                     {sort.key === c.key && <span className="th-sort">{sort.dir === 'asc' ? '▲' : '▼'}</span>}

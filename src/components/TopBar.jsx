@@ -4,7 +4,6 @@ import { monthKeyOf, monthLabel, monthShort, shiftMonth } from '../lib/columns'
 export default function TopBar({
   view,
   ready = true,
-  toolsOnly = false,
   monthKey,
   months,
   onMonth,
@@ -14,6 +13,8 @@ export default function TopBar({
   onSettings,
   grouped,
   onGrouped,
+  onAddLead,
+  busy,
 }) {
   const [exportOpen, setExportOpen] = useState(false)
   const thisMonth = monthKeyOf(new Date())
@@ -25,19 +26,104 @@ export default function TopBar({
   }, [months, monthKey, thisMonth])
 
   return (
-    <header className={toolsOnly ? 'topbar sheet-tools' : 'topbar'}>
+    <header className="topbar">
+      {/* Top navigation row: Breadcrumbs on left, Global tools on right */}
       <div className="topbar-row">
         <div className="brand">
-          <div className="brand-mark">S</div>
-          <div>
-            <p className="breadcrumb-title">
-              Workspace <span className="breadcrumb">/</span>{' '}
-              {isSheet ? 'Sales sheet' : 'Pipeline'}
-            </p>
-          </div>
+          <p className="breadcrumb-title">
+            Workspace <span className="breadcrumb">/</span>{' '}
+            <strong>{isSheet ? 'Sales sheet' : 'Pipeline'}</strong>
+          </p>
         </div>
 
-        {isSheet && ready ? (
+        <div className="topbar-actions">
+          {isSheet && ready && (
+            <>
+              <div className="search">
+                <span>⌕</span>
+                <input
+                  aria-label="Search this sheet"
+                  value={search}
+                  placeholder="Search this sheet…"
+                  onChange={(e) => onSearch(e.target.value)}
+                />
+                {search && (
+                  <button className="clear" onClick={() => onSearch('')} title="Clear search">
+                    ×
+                  </button>
+                )}
+              </div>
+
+              <button
+                className={`ghost-btn ${grouped ? 'on' : ''}`}
+                onClick={() => onGrouped(!grouped)}
+                title={grouped ? 'Grouped by calendar day' : 'Flat sortable list'}
+              >
+                {grouped ? '▤ By day' : '≡ Flat list'}
+              </button>
+
+              <div className="dropdown">
+                <button className="primary-btn" onClick={() => setExportOpen((v) => !v)}>
+                  Export ▾
+                </button>
+                {exportOpen && (
+                  <>
+                    <div className="dropdown-backdrop" onClick={() => setExportOpen(false)} />
+                    <div className="dropdown-menu">
+                      <button
+                        onClick={() => {
+                          setExportOpen(false)
+                          onExport('xlsx')
+                        }}
+                      >
+                        <strong>Excel (.xlsx)</strong>
+                        <small>Formatted workbook with pipeline tab</small>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setExportOpen(false)
+                          onExport('csv')
+                        }}
+                      >
+                        <strong>CSV (.csv)</strong>
+                        <small>Plain tabular data export</small>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <button className="ghost-btn" onClick={onSettings} title="Configure columns">
+                ⚙ Columns
+              </button>
+            </>
+          )}
+
+          {!isSheet && onAddLead && (
+            <button className="primary-btn hero-add-lead" disabled={busy} onClick={onAddLead}>
+              ＋ Add lead
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Hero title banner */}
+      <div className="topbar-hero-row">
+        <div className="hero-heading-block">
+          <span className="hero-eyebrow">
+            {isSheet ? 'YOUR MONTH, AT A GLANCE' : 'WORKING PIPELINE'}
+          </span>
+          <h1 className="hero-title">
+            {isSheet ? 'Make every win count.' : 'Good things in progress.'}
+          </h1>
+          <p className="hero-subtitle">
+            {isSheet
+              ? 'Every conversation that became a win.'
+              : 'Keep track of the people you’re following up with.'}
+          </p>
+        </div>
+
+        {isSheet && ready && (
           <div className="month-nav">
             <button
               className="icon-btn"
@@ -58,88 +144,15 @@ export default function TopBar({
               ›
             </button>
             {monthKey !== thisMonth && (
-              <button className="ghost-btn" onClick={() => onMonth(thisMonth)}>
+              <button className="ghost-btn today-btn" onClick={() => onMonth(thisMonth)}>
                 Today
               </button>
             )}
           </div>
-        ) : (
-          <div className="month-nav">
-            <div className="month-current wide">
-              <strong>
-                {isSheet
-                  ? 'Your monthly sales workspace'
-                  : 'Working pipeline'}
-              </strong>
-            </div>
-          </div>
         )}
-
-        <div className="topbar-actions">
-          {isSheet && ready && (
-            <>
-              <div className="search">
-                <span>⌕</span>
-                <input
-                  aria-label="Search this sheet"
-                  value={search}
-                  placeholder="Search this sheet…"
-                  onChange={(e) => onSearch(e.target.value)}
-                />
-                {search && (
-                  <button className="clear" onClick={() => onSearch('')} title="Clear">
-                    ×
-                  </button>
-                )}
-              </div>
-
-              <button
-                className={`ghost-btn ${grouped ? 'on' : ''}`}
-                onClick={() => onGrouped(!grouped)}
-                title={grouped ? 'Showing one block per day' : 'Showing a flat, sortable list'}
-              >
-                {grouped ? '▤ By day' : '≡ Flat list'}
-              </button>
-
-              <div className="dropdown">
-                <button className="primary-btn" onClick={() => setExportOpen((v) => !v)}>
-                  Export ▾
-                </button>
-                {exportOpen && (
-                  <>
-                    <div className="dropdown-backdrop" onClick={() => setExportOpen(false)} />
-                    <div className="dropdown-menu">
-                      <button
-                        onClick={() => {
-                          setExportOpen(false)
-                          onExport('xlsx')
-                        }}
-                      >
-                        <strong>Excel (.xlsx)</strong>
-                        <small>Coloured, with the pipeline on a second tab</small>
-                      </button>
-                      <button
-                        onClick={() => {
-                          setExportOpen(false)
-                          onExport('csv')
-                        }}
-                      >
-                        <strong>CSV (.csv)</strong>
-                        <small>Plain data for imports</small>
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              <button className="ghost-btn" onClick={onSettings} title="Add or change columns">
-                ⚙ Columns
-              </button>
-            </>
-          )}
-        </div>
       </div>
 
+      {/* Month tabs row */}
       {isSheet && ready && (
         <div className="month-tabs">
           {tabs.map((m) => (

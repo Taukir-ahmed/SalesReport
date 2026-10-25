@@ -35,7 +35,7 @@ export default function App() {
   const [fatal, setFatal] = useState(null)
   const [busy, setBusy] = useState(false)
   const [grouped, setGrouped] = useState(true)
-  const [hideEmptyDays, setHideEmptyDays] = useState(false)
+  const [hideEmptyDays, setHideEmptyDays] = useState(true)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState({ key: null, dir: 'asc' })
@@ -511,6 +511,8 @@ export default function App() {
           onSettings={() => setSettingsOpen(true)}
           grouped={grouped}
           onGrouped={setGrouped}
+          onAddLead={addLead}
+          busy={busy}
         />
 
         <main className="main">
@@ -529,33 +531,6 @@ export default function App() {
             </div>
           ) : (
             <>
-              <div className="page-heading">
-                <div>
-                  <span className="eyebrow">
-                    {view === 'sheet'
-                      ? 'YOUR MONTH, AT A GLANCE'
-                      : 'MAKE THE NEXT CONVERSATION COUNT'}
-                  </span>
-                  <h1>{view === 'sheet' ? 'Make every win count.' : 'Good things in progress.'}</h1>
-                  <p>
-                    {view === 'sheet'
-                      ? 'Every conversation that became a win.'
-                      : 'Keep track of the people you’re following up with.'}
-                  </p>
-                </div>
-                {view === 'sheet' && (
-                  <span className="page-stamp">
-                    Small steps.
-                    <br />
-                    Real progress.
-                  </span>
-                )}
-                {view === 'pipeline' && (
-                  <button className="primary-btn" disabled={busy} onClick={() => addLead()}>
-                    ＋ Add lead
-                  </button>
-                )}
-              </div>
               {view === 'sheet' ? (
                 <>
                   <StatCards stats={stats} />
