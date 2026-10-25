@@ -444,7 +444,7 @@ export async function exportXlsx({
   // Sheet 1: Sales Performance Report
   const sheetName = monthKey ? monthLabel(monthKey) : 'Sales Report'
   const ws = wb.addWorksheet(sheetName.slice(0, 31), {
-    views: [{ showGridLines: true, state: 'frozen', ySplit: includeKPI ? 5 : 1 }],
+    views: [{ showGridLines: true }],
     pageSetup: { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
   })
 
@@ -721,7 +721,7 @@ export async function exportXlsx({
   /* ---------------- Tab 2: Lead Pipeline CRM ---------------- */
   if (includePipeline && leads.length) {
     const ps = wb.addWorksheet('Active Pipeline', {
-      views: [{ showGridLines: true, state: 'frozen', ySplit: 2 }],
+      views: [{ showGridLines: true }],
     })
 
     ps.mergeCells('A1:E1')
