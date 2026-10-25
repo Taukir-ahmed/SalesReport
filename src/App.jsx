@@ -25,6 +25,7 @@ import {
 } from './lib/columns'
 import { CONVERTS_TO, converts } from './lib/status'
 import { exportCsv, exportXlsx } from './lib/exporters'
+import { getSeedRows } from './lib/demoData'
 
 export default function App() {
   const [view, setView] = useState('sheet')
@@ -252,6 +253,24 @@ export default function App() {
     },
     [rows, complain]
   )
+
+  const seedSampleRows = useCallback(async () => {
+    try {
+      setBusy(true)
+      const samples = getSeedRows(monthKey)
+      const inserted = []
+      for (const s of samples) {
+        const row = await db.insertRow({ month_key: s.month_key, position: s.position, data: s.data })
+        inserted.push(row)
+      }
+      setRows((prev) => [...prev, ...inserted])
+      say('Added 10 sample sales records!')
+    } catch (e) {
+      complain(e)
+    } finally {
+      setBusy(false)
+    }
+  }, [monthKey, say, complain])
 
   const applyPayment = useCallback(
     async (value) => {
@@ -597,6 +616,7 @@ export default function App() {
                     clearFocus={() => setFocusCell(null)}
                     busy={busy}
                     searching={!!search.trim()}
+                    onSeedSamples={seedSampleRows}
                   />
                 </>
               ) : (

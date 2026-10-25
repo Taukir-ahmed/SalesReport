@@ -1816,3 +1816,44 @@ select.cell-input {
   background: rgba(255, 255, 255, 0.25) !important;
 }
 
+/* --------------------------- Empty Sheet Seed Callout --------------------------- */
+.empty-sheet-box {
+  padding: 36px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(248, 249, 254, 0.6);
+  border-radius: 12px;
+  margin: 10px 14px;
+  border: 1.5px dashed #cbd5e1;
+}
+
+.empty-sheet-box p {
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.seed-samples-btn {
+  background: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%) !important;
+  color: #ffffff !important;
+  padding: 10px 20px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  border-radius: 9999px !important;
+  border: none !important;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(94, 114, 228, 0.28) !important;
+  transition: all 0.18s ease;
+}
+
+.seed-samples-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(94, 114, 228, 0.45) !important;
+}
+
+
