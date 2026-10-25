@@ -21,7 +21,6 @@ export default function WorkspaceNav({ view, onView, count, connected }) {
         {[
           ['sheet', '▤', 'Sales sheet'],
           ['pipeline', '▥', 'Pipeline'],
-          ['help', '✧', 'Sales Help'],
         ].map(([id, icon, label]) => (
           <button
             key={id}
@@ -52,9 +51,12 @@ export default function WorkspaceNav({ view, onView, count, connected }) {
       </div>
       <div className="nav-bottom">
         <span className="workspace-avatar">SR</span>
-        <div>
-          Sales workspace
-          <small>{connected ? 'Cloud connected' : 'Sales Help available offline'}</small>
+        <div className="nav-bottom-info">
+          <span className="nav-user-title">Sales workspace</span>
+          <small className="nav-status">
+            <span className={`status-dot ${connected ? 'online' : 'offline'}`} />
+            {connected ? 'Cloud connected' : 'Local / Offline mode'}
+          </small>
         </div>
       </div>
     </aside>

@@ -32,7 +32,7 @@ export default function TopBar({
           <div>
             <p className="breadcrumb-title">
               Workspace <span className="breadcrumb">/</span>{' '}
-              {isSheet ? 'Sales sheet' : view === 'help' ? 'Sales Help' : 'Pipeline'}
+              {isSheet ? 'Sales sheet' : 'Pipeline'}
             </p>
           </div>
         </div>
@@ -67,11 +67,9 @@ export default function TopBar({
           <div className="month-nav">
             <div className="month-current wide">
               <strong>
-                {view === 'help'
-                  ? 'Your conversation studio'
-                  : isSheet
-                    ? 'Your monthly sales workspace'
-                    : 'Working pipeline'}
+                {isSheet
+                  ? 'Your monthly sales workspace'
+                  : 'Working pipeline'}
               </strong>
             </div>
           </div>

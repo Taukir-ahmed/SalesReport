@@ -9,7 +9,6 @@ import ConvertModal from './components/ConvertModal'
 import PaymentModal from './components/PaymentModal'
 import Toast from './components/Toast'
 import WorkspaceNav from './components/WorkspaceNav'
-import SalesHelp from './components/SalesHelp'
 import * as db from './lib/db'
 import { isSupabaseConfigured } from './lib/supabaseClient'
 import {
@@ -27,7 +26,7 @@ import { CONVERTS_TO, converts } from './lib/status'
 import { exportCsv, exportXlsx } from './lib/exporters'
 
 export default function App() {
-  const [view, setView] = useState(isSupabaseConfigured ? 'sheet' : 'help')
+  const [view, setView] = useState('sheet')
   const [columns, setColumns] = useState([])
   const [rows, setRows] = useState([])
   const [months, setMonths] = useState([])
@@ -501,7 +500,7 @@ export default function App() {
       />
       <div className="workspace">
         <TopBar
-          ready={view !== 'sheet' && !fatal && !loading}
+          ready={!fatal && !loading}
           view={view}
           monthKey={monthKey}
           months={months}
@@ -515,17 +514,7 @@ export default function App() {
         />
 
         <main className="main">
-          <div hidden={view !== 'help'}>
-            <SalesHelp
-              leads={leads}
-              available={!fatal && !loading && !pipelineError}
-              onSaveNotes={async (id, remarks) => {
-                await db.updateLead(id, { remarks })
-                setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, remarks } : l)))
-              }}
-            />
-          </div>
-          {view === 'help' ? null : fatal ? (
+          {fatal ? (
             <ConnectionScreen
               kind={fatal.kind}
               message={fatal.message}
@@ -577,22 +566,8 @@ export default function App() {
                         Click a cell to edit. Keep the details, payments, and next steps together.
                       </p>
                     </div>
-                    <span>{grouped ? 'Organised by day' : 'All entries'}</span>
+                    <span className="ledger-badge">{grouped ? 'Organised by day' : 'All entries'}</span>
                   </div>
-                  <TopBar
-                    toolsOnly
-                    ready
-                    view="sheet"
-                    monthKey={monthKey}
-                    months={months}
-                    onMonth={setMonthKey}
-                    search={search}
-                    onSearch={setSearch}
-                    onExport={doExport}
-                    onSettings={() => setSettingsOpen(true)}
-                    grouped={grouped}
-                    onGrouped={setGrouped}
-                  />
                   <SheetGrid
                     columns={visibleColumns}
                     rows={viewRows}

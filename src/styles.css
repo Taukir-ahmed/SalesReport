@@ -3,28 +3,28 @@
    One file on purpose: easy to tweak colours in the :root block below.
    ========================================================================== */
 :root {
-  --bg: #eef2f8;
+  --bg: #f8f9fe;
   --surface: #ffffff;
-  --ink: #0f172a;
-  --ink-soft: #5a6b84;
-  --ink-faint: #94a3b8;
-  --line: #dbe3ee;
-  --line-soft: #eaeff7;
-  --brand: #2e5fa3;
-  --brand-deep: #1f3864;
-  --brand-tint: #eaf1fb;
-  --green: #157f3c;
-  --green-tint: #e3f6ea;
-  --amber: #9a5b00;
-  --amber-tint: #fdefd8;
-  --violet: #5b3fb5;
+  --ink: #32325d;
+  --ink-soft: #525f7f;
+  --ink-faint: #8898aa;
+  --line: #e9ecef;
+  --line-soft: #f4f5f7;
+  --brand: #5e72e4;
+  --brand-deep: #324cdd;
+  --brand-tint: #f4f5fd;
+  --green: #2dce89;
+  --green-tint: #d4f8e8;
+  --amber: #fb6340;
+  --amber-tint: #ffeeda;
+  --violet: #8965e0;
   --violet-tint: #eeeaff;
-  --red: #b3261e;
-  --red-tint: #fbe3e1;
-  --zebra: #f7f9fd;
-  --radius: 12px;
-  --shadow: 0 1px 2px rgba(15, 32, 56, 0.06), 0 8px 24px rgba(15, 32, 56, 0.07);
-  --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Inter', Roboto, Helvetica, Arial, sans-serif;
+  --red: #f5365c;
+  --red-tint: #fee6eb;
+  --zebra: #fafbfe;
+  --radius: 14px;
+  --shadow: 0 0 2rem 0 rgba(136, 152, 170, 0.15);
+  --font: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
