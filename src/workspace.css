@@ -491,32 +491,42 @@ input, select, textarea {
   position: relative;
   display: flex;
   align-items: center;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  height: auto !important;
+  box-shadow: none !important;
 }
 
 .search > span {
   position: absolute;
   left: 14px;
   color: var(--ink-faint);
-  font-size: 15px;
+  font-size: 14px;
   pointer-events: none;
+  z-index: 2;
+  line-height: 1;
 }
 
 .search input {
   background: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: var(--radius-pill);
-  padding: 9px 34px 9px 38px;
+  padding: 8px 32px 8px 36px;
   font-size: 13.5px;
   color: var(--ink);
   width: 220px;
-  transition: width 0.2s, box-shadow 0.2s;
+  height: 38px;
+  transition: width 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  outline: none;
+  box-sizing: border-box;
 }
 
 .search input:focus {
   width: 280px;
-  outline: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  border-color: #ffffff;
 }
 
 .search .clear {
@@ -527,6 +537,9 @@ input, select, textarea {
   color: var(--ink-faint);
   font-size: 16px;
   padding: 2px 6px;
+  cursor: pointer;
+  z-index: 2;
+  line-height: 1;
 }
 
 .primary-btn {
