@@ -459,41 +459,8 @@ export async function exportXlsx({
   ws.getRow(3).height = 76  // KPI cards
   ws.getRow(4).height = 16  // Spacer before table
 
-  // Populate fallback cell fills for viewers without image rendering
-  ws.mergeCells(`A1:${lastLetter}1`)
-  const tCell = ws.getCell('A1')
-  tCell.value = 'SALES & REVENUE EXECUTIVE REPORT'
-  tCell.font = { bold: true, size: 16, color: { argb: 'FFFFFFFF' }, name: 'Segoe UI' }
-  tCell.alignment = { vertical: 'middle', horizontal: 'center' }
-  tCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF07183D' } }
-
-  ws.mergeCells(`A2:${lastLetter}2`)
-  const sCell = ws.getCell('A2')
-  sCell.value = `Filter: ${filterLabel}   •   Total Sales: ${totalSales}   •   Generated on: ${timestamp}   •   Confidential`
-  sCell.font = { size: 9.5, italic: true, color: { argb: 'FF94A3B8' }, name: 'Segoe UI' }
-  sCell.alignment = { vertical: 'middle', horizontal: 'center' }
-  sCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0C2862' } }
-
-  // Fallback Row 3 KPI cell blocks
-  const span = Math.max(1, Math.floor(lastCol / 4))
-  const kpiRanges = [
-    { start: 1, end: span, label: `₹ TOTAL REVENUE: ₹${inr.format(totalAmount)}`, bg: 'FFF0FDF4', fg: 'FF059669' },
-    { start: span + 1, end: span * 2, label: `👥 CLOSED DEALS: ${totalSales}`, bg: 'FFEBF5FF', fg: 'FF1D4ED8' },
-    { start: span * 2 + 1, end: span * 3, label: `📊 AVG TICKET: ₹${inr.format(Math.round(avgTicket))}`, bg: 'FFFDF4FF', fg: 'FF7C3AED' },
-    { start: span * 3 + 1, end: lastCol, label: `📅 PERIOD: ${filterLabel}`, bg: 'FFF8FAFC', fg: 'FF0F172A' },
-  ]
-  kpiRanges.forEach((k) => {
-    const sL = colLetter(k.start)
-    const eL = colLetter(k.end)
-    ws.mergeCells(`${sL}3:${eL}3`)
-    const c = ws.getCell(`${sL}3`)
-    c.value = k.label
-    c.font = { bold: true, size: 11, color: { argb: k.fg }, name: 'Segoe UI' }
-    c.alignment = { vertical: 'middle', horizontal: 'center' }
-    c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: k.bg } }
-  })
-
-  // Attempt to generate and embed high-definition Canvas image in browser
+  let hasImage = false
+  // Generate and embed high-definition Canvas graphic in browser
   try {
     const canvasDataUrl = generateHeaderCanvas({
       totalAmount,
@@ -511,10 +478,47 @@ export async function exportXlsx({
       ws.addImage(imageId, {
         tl: { col: 0, row: 0 },
         br: { col: lastCol, row: 4 },
+        editAs: 'twoCell',
       })
+      hasImage = true
     }
   } catch (err) {
     console.warn('Canvas header image generation skipped:', err)
+  }
+
+  // ONLY if no graphic was generated (e.g. headless Node environment), populate fallback cell text
+  if (!hasImage) {
+    ws.mergeCells(`A1:${lastLetter}1`)
+    const tCell = ws.getCell('A1')
+    tCell.value = 'SALES & REVENUE EXECUTIVE REPORT'
+    tCell.font = { bold: true, size: 16, color: { argb: 'FFFFFFFF' }, name: 'Segoe UI' }
+    tCell.alignment = { vertical: 'middle', horizontal: 'center' }
+    tCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF07183D' } }
+
+    ws.mergeCells(`A2:${lastLetter}2`)
+    const sCell = ws.getCell('A2')
+    sCell.value = `Filter: ${filterLabel}   •   Total Sales: ${totalSales}   •   Generated on: ${timestamp}   •   Confidential`
+    sCell.font = { size: 9.5, italic: true, color: { argb: 'FF94A3B8' }, name: 'Segoe UI' }
+    sCell.alignment = { vertical: 'middle', horizontal: 'center' }
+    sCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0C2862' } }
+
+    const span = Math.max(1, Math.floor(lastCol / 4))
+    const kpiRanges = [
+      { start: 1, end: span, label: `₹ TOTAL REVENUE: ₹${inr.format(totalAmount)}`, bg: 'FFF0FDF4', fg: 'FF059669' },
+      { start: span + 1, end: span * 2, label: `👥 CLOSED DEALS: ${totalSales}`, bg: 'FFEBF5FF', fg: 'FF1D4ED8' },
+      { start: span * 2 + 1, end: span * 3, label: `📊 AVG TICKET: ₹${inr.format(Math.round(avgTicket))}`, bg: 'FFFDF4FF', fg: 'FF7C3AED' },
+      { start: span * 3 + 1, end: lastCol, label: `📅 PERIOD: ${filterLabel}`, bg: 'FFF8FAFC', fg: 'FF0F172A' },
+    ]
+    kpiRanges.forEach((k) => {
+      const sL = colLetter(k.start)
+      const eL = colLetter(k.end)
+      ws.mergeCells(`${sL}3:${eL}3`)
+      const c = ws.getCell(`${sL}3`)
+      c.value = k.label
+      c.font = { bold: true, size: 11, color: { argb: k.fg }, name: 'Segoe UI' }
+      c.alignment = { vertical: 'middle', horizontal: 'center' }
+      c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: k.bg } }
+    })
   }
 
   /* ---------------- Row 5: Table Header Row ---------------- */
