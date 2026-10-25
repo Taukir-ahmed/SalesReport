@@ -7,6 +7,7 @@ import ColumnSettings from './components/ColumnSettings'
 import ConnectionScreen from './components/ConnectionScreen'
 import ConvertModal from './components/ConvertModal'
 import PaymentModal from './components/PaymentModal'
+import ExportModal from './components/ExportModal'
 import Toast from './components/Toast'
 import WorkspaceNav from './components/WorkspaceNav'
 import * as db from './lib/db'
@@ -37,6 +38,7 @@ export default function App() {
   const [grouped, setGrouped] = useState(true)
   const [hideEmptyDays, setHideEmptyDays] = useState(true)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState({ key: null, dir: 'asc' })
   const [toast, setToast] = useState(null)
@@ -471,19 +473,31 @@ export default function App() {
     }
   }, [realRows, columns, monthKey])
 
-  const doExport = async (kind) => {
+  const doExport = async ({
+    format = 'xlsx',
+    filterLabel = 'All Selected Records',
+    filenameSuffix = monthKey,
+    filteredRows = viewRows.filter((r) => !isBlankRow(r, columns)),
+    includeKPI = true,
+    includePipeline = true,
+    stats: exportStats,
+  }) => {
     const payload = {
       columns,
-      rows: viewRows.filter((r) => !isBlankRow(r, columns)),
+      rows: filteredRows,
       monthKey,
-      grouped,
       leads: leads.filter((l) => !l.moved_at),
-      sheetTitle: 'Business development — daily sales',
+      sheetTitle: `Sales Report — ${filterLabel}`,
+      filterLabel,
+      filenameSuffix,
+      includeKPI,
+      includePipeline,
+      stats: exportStats,
     }
     try {
-      if (kind === 'csv') exportCsv(payload)
+      if (format === 'csv') exportCsv(payload)
       else await exportXlsx(payload)
-      say(`Downloaded Sales-${monthKey}.${kind === 'csv' ? 'csv' : 'xlsx'}`)
+      say(`Downloaded SalesReport-${filenameSuffix}.${format}`)
     } catch (e) {
       console.error(e)
       say('Export failed: ' + (e.message || e), 'error')
@@ -507,7 +521,7 @@ export default function App() {
           onMonth={setMonthKey}
           search={search}
           onSearch={setSearch}
-          onExport={doExport}
+          onExport={() => setExportOpen(true)}
           onSettings={() => setSettingsOpen(true)}
           grouped={grouped}
           onGrouped={setGrouped}
@@ -614,6 +628,18 @@ export default function App() {
           parts={payment.row.data?.[partsKey(payment.column.key)] ?? []}
           onCancel={() => setPayment(null)}
           onConfirm={applyPayment}
+        />
+      )}
+
+      {exportOpen && (
+        <ExportModal
+          isOpen={exportOpen}
+          onClose={() => setExportOpen(false)}
+          rows={rows}
+          columns={columns}
+          monthKey={monthKey}
+          leads={leads.filter((l) => !l.moved_at)}
+          onExport={doExport}
         />
       )}
 

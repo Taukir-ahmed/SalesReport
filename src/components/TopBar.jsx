@@ -62,36 +62,13 @@ export default function TopBar({
                 {grouped ? '▤ By day' : '≡ Flat list'}
               </button>
 
-              <div className="dropdown">
-                <button className="primary-btn" onClick={() => setExportOpen((v) => !v)}>
-                  Export ▾
-                </button>
-                {exportOpen && (
-                  <>
-                    <div className="dropdown-backdrop" onClick={() => setExportOpen(false)} />
-                    <div className="dropdown-menu">
-                      <button
-                        onClick={() => {
-                          setExportOpen(false)
-                          onExport('xlsx')
-                        }}
-                      >
-                        <strong>Excel (.xlsx)</strong>
-                        <small>Formatted workbook with pipeline tab</small>
-                      </button>
-                      <button
-                        onClick={() => {
-                          setExportOpen(false)
-                          onExport('csv')
-                        }}
-                      >
-                        <strong>CSV (.csv)</strong>
-                        <small>Plain tabular data export</small>
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
+              <button
+                className="primary-btn export-trigger-btn"
+                onClick={onExport}
+                title="Export custom sales report (Excel or CSV)"
+              >
+                📊 Export ▾
+              </button>
 
               <button className="ghost-btn" onClick={onSettings} title="Configure columns">
                 ⚙ Columns
