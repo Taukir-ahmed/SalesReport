@@ -1,4 +1,4 @@
-export default function WorkspaceNav({ view, onView, count, connected }) {
+export default function WorkspaceNav({ view, onView, count, connected, demoMode }) {
   return (
     <aside className="workspace-nav">
       <a
@@ -6,7 +6,6 @@ export default function WorkspaceNav({ view, onView, count, connected }) {
         href="#"
         onClick={(e) => {
           e.preventDefault()
-          onView('sheet')
         }}
       >
         <span className="workspace-logo">
@@ -54,8 +53,8 @@ export default function WorkspaceNav({ view, onView, count, connected }) {
         <div className="nav-bottom-info">
           <span className="nav-user-title">Sales workspace</span>
           <small className="nav-status">
-            <span className={`status-dot ${connected ? 'online' : 'offline'}`} />
-            {connected ? 'Cloud connected' : 'Local / Offline mode'}
+            <span className={`status-dot ${connected ? 'online' : demoMode ? 'demo' : 'offline'}`} />
+            {connected ? 'Cloud connected' : demoMode ? 'Local Demo mode' : 'Local / Offline mode'}
           </small>
         </div>
       </div>

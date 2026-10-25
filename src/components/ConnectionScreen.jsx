@@ -1,4 +1,4 @@
-export default function ConnectionScreen({ kind, message, onRetry }) {
+export default function ConnectionScreen({ kind, message, onRetry, onEnterDemo }) {
   const setup = kind === 'setup'
   return (
     <div className="boot">
@@ -7,27 +7,42 @@ export default function ConnectionScreen({ kind, message, onRetry }) {
         <h2>{setup ? 'Connect your Supabase project' : "Can't reach your sheet"}</h2>
         <p>
           {setup
-            ? 'Connect your existing Supabase project to open the sales sheet and pipeline. Sales Help is available from the navigation while you set this up.'
+            ? 'Connect your existing Supabase project to sync your sales sheet to the cloud, or preview everything right now with interactive sample data in local Demo Mode.'
             : message}
         </p>
 
+        {setup && onEnterDemo && (
+          <div className="conn-demo-box">
+            <button type="button" className="primary-btn conn-demo-btn" onClick={onEnterDemo}>
+              ⚡ Launch Demo Mode (10 Sample Records)
+            </button>
+            <span className="conn-demo-sub">
+              Instant local preview • Test Argon UI, click-to-edit table & Excel export
+            </span>
+          </div>
+        )}
+
         {setup && (
-          <ol className="conn-steps">
-            <li>
-              Copy <code>.env.example</code> to <code>.env</code> in the project folder.
-            </li>
-            <li>
-              Paste your <strong>Project URL</strong> and <strong>anon public</strong> key from
-              Supabase → Project Settings → API.
-            </li>
-            <li>
-              Use the Supabase project that already holds your sales and pipeline tables. Database
-              setup scripts are not included in this repository.
-            </li>
-            <li>
-              Stop and restart <code>npm run dev</code> — env files are only read at startup.
-            </li>
-          </ol>
+          <>
+            <div className="conn-divider">
+              <span>OR CONNECT CLOUD DATABASE</span>
+            </div>
+            <ol className="conn-steps">
+              <li>
+                Copy <code>.env.example</code> to <code>.env</code> in the project folder.
+              </li>
+              <li>
+                Paste your <strong>Project URL</strong> and <strong>anon public</strong> key from
+                Supabase → Project Settings → API.
+              </li>
+              <li>
+                Use the Supabase project that already holds your sales and pipeline tables.
+              </li>
+              <li>
+                Stop and restart <code>npm run dev</code> — env files are only read at startup.
+              </li>
+            </ol>
+          </>
         )}
 
         {!setup && (

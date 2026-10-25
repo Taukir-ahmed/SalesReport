@@ -1725,3 +1725,94 @@ select.cell-input {
     margin-top: -36px;
   }
 }
+
+/* --------------------------- Connection Screen Demo Mode Callout --------------------------- */
+.conn-demo-box {
+  background: linear-gradient(135deg, rgba(94, 114, 228, 0.08) 0%, rgba(130, 94, 228, 0.12) 100%);
+  border: 1.5px solid rgba(94, 114, 228, 0.3);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin: 18px 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.conn-demo-btn {
+  background: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%) !important;
+  color: #ffffff !important;
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  padding: 12px 20px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(94, 114, 228, 0.38) !important;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.conn-demo-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(94, 114, 228, 0.5) !important;
+}
+
+.conn-demo-sub {
+  font-size: 11.5px;
+  color: #64748b;
+  text-align: center;
+  font-weight: 500;
+}
+
+.conn-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 22px 0 16px;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.conn-divider::before,
+.conn-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.conn-divider span {
+  padding: 0 12px;
+}
+
+.demo-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  margin-left: 10px;
+}
+
+.demo-connect-btn {
+  font-size: 11px !important;
+  padding: 4px 10px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  margin-left: 6px !important;
+  cursor: pointer;
+}
+
+.demo-connect-btn:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+

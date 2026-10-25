@@ -15,6 +15,8 @@ export default function TopBar({
   onGrouped,
   onAddLead,
   busy,
+  demoMode,
+  onExitDemo,
 }) {
   const [exportOpen, setExportOpen] = useState(false)
   const thisMonth = monthKeyOf(new Date())
@@ -34,6 +36,22 @@ export default function TopBar({
             Workspace <span className="breadcrumb">/</span>{' '}
             <strong>{isSheet ? 'Sales sheet' : 'Pipeline'}</strong>
           </p>
+          {demoMode && (
+            <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <span className="demo-pill-badge" title="Running with local sample data in browser localStorage">
+                ⚡ Demo Mode
+              </span>
+              {onExitDemo && (
+                <button
+                  className="ghost-btn demo-connect-btn"
+                  onClick={onExitDemo}
+                  title="Configure Supabase connection"
+                >
+                  Connect Cloud
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="topbar-actions">

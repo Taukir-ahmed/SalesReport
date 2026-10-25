@@ -44,6 +44,24 @@ export default function App() {
   const [toast, setToast] = useState(null)
   const [focusCell, setFocusCell] = useState(null)
   const [attempt, setAttempt] = useState(0)
+  const [demoMode, setDemoMode] = useState(() => {
+    return !isSupabaseConfigured && localStorage.getItem('salesroom_demo_mode') === 'true'
+  })
+
+  const enterDemo = useCallback(() => {
+    localStorage.setItem('salesroom_demo_mode', 'true')
+    setDemoMode(true)
+    setFatal(null)
+    setLoading(true)
+    setAttempt((n) => n + 1)
+  }, [])
+
+  const exitDemo = useCallback(() => {
+    localStorage.removeItem('salesroom_demo_mode')
+    setDemoMode(false)
+    setFatal({ kind: 'setup' })
+    setLoading(false)
+  }, [])
 
   const [leads, setLeads] = useState([])
   const [showMoved, setShowMoved] = useState(false)
@@ -68,7 +86,7 @@ export default function App() {
   useEffect(() => {
     let cancelled = false
     ;(async () => {
-      if (!isSupabaseConfigured) {
+      if (!isSupabaseConfigured && !demoMode) {
         setFatal({ kind: 'setup' })
         setLoading(false)
         return
@@ -119,7 +137,7 @@ export default function App() {
     return () => {
       cancelled = true
     }
-  }, [attempt])
+  }, [attempt, demoMode])
 
   /* ------------------------------- month load ----------------------------- */
   const refreshRows = useCallback(
@@ -511,6 +529,7 @@ export default function App() {
         onView={setView}
         count={leads.filter((l) => !l.moved_at).length}
         connected={isSupabaseConfigured && !fatal && !loading}
+        demoMode={demoMode}
       />
       <div className="workspace">
         <TopBar
@@ -527,6 +546,8 @@ export default function App() {
           onGrouped={setGrouped}
           onAddLead={addLead}
           busy={busy}
+          demoMode={demoMode}
+          onExitDemo={exitDemo}
         />
 
         <main className="main">
@@ -535,6 +556,7 @@ export default function App() {
               kind={fatal.kind}
               message={fatal.message}
               onRetry={fatal.kind === 'error' ? () => setAttempt((n) => n + 1) : null}
+              onEnterDemo={enterDemo}
             />
           ) : loading ? (
             <div className="boot">
