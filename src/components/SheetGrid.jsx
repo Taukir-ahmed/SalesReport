@@ -115,7 +115,6 @@ export default function SheetGrid({
   clearFocus,
   busy,
   searching,
-  onSeedSamples,
 }) {
   const [editing, setEditing] = useState(null)
   const resizing = useRef(null)
@@ -438,27 +437,6 @@ export default function SheetGrid({
 
           <tbody>
             {body}
-
-            {realCount === 0 && !searching && onSeedSamples && (
-              <tr className="empty-callout-row">
-                <td colSpan={bodyCols.length + (useGroups ? 3 : 2)}>
-                  <div className="empty-sheet-box">
-                    <p>No sales logged for this month yet.</p>
-                    <button
-                      type="button"
-                      className="primary-btn seed-samples-btn"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onSeedSamples()
-                      }}
-                      disabled={busy}
-                    >
-                      ⚡ Load 10 sample sales (to test & delete)
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            )}
 
             <tr className="ghost" onClick={() => !busy && requestRow(bodyCols[0]?.key)}>
               <td className="gutter">
